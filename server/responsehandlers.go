@@ -133,7 +133,13 @@ func (p *Plugin) handleJoinMeeting(w http.ResponseWriter, r *http.Request) {
 		participant.FullName_ = username
 		participant.MeetingID_ = meetingID
 
-		participant.Password_ = meetingpointer.ModeratorPW_ //make everyone in channel a mod
+
+
+		if strings.Compare(request.IsMod, "TRUE") == 0 {
+		       participant.Password_ = meetingpointer.ModeratorPW_ // make creator of meeting a mod
+		} else {
+		       participant.Password_ = meetingpointer.AttendeePW_  // make all others attendees
+		}
 		joinURL, err := bbbAPI.GetJoinURL(&participant)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
