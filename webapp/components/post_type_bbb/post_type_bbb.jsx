@@ -236,7 +236,7 @@ export default class PostTypebbb extends React.PureComponent {
 
     if (props.meeting_status === 'STARTED') {
 
-      preText = PostUtils.formatText("Meeting created by @" + this.props.creatorName, {
+      preText = PostUtils.formatText("Meeting created by @" + this.props.creatorName + "\n**_If you participate the meeting, be aware that a record can be started any time!!!_**", {
         mentionHighlight: false,
         atMentions: true
       });
