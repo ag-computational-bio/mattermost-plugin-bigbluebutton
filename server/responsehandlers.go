@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"regexp"
 
 	bbbAPI "github.com/blindsidenetworks/mattermost-plugin-bigbluebutton/server/bigbluebuttonapiwrapper/api"
 	"github.com/blindsidenetworks/mattermost-plugin-bigbluebutton/server/bigbluebuttonapiwrapper/dataStructs"
@@ -109,6 +110,19 @@ func (p *Plugin) handleJoinMeeting(w http.ResponseWriter, r *http.Request) {
 
 		user, _ := p.API.GetUser(request.UserId)
 		username := user.Username
+		// use nickname if it is not empty
+		if strings.Compare(user.Nickname, "") != 0 {
+		        username = user.Nickname
+		}
+		// use First+Last Name if they are not empty
+		if strings.Compare(user.FirstName, "") != 0 || strings.Compare(user.LastName, "") != 0 {
+		        username = strings.Join([]string{user.FirstName, user.LastName}, " ")
+			// avoid multiple white characters
+			space := regexp.MustCompile(`\s+`)
+			username = space.ReplaceAllString(username, " ")
+			// avoid trailing white space
+			username = strings.TrimSpace(username)
+		}
 
 		//golang doesnt have sets so have to iterate through array to check if meeting participant is already in meeeting
 		if !IsItemInArray(username, meetingpointer.AttendeeNames) {
