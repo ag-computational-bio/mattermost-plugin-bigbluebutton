@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 	"regexp"
+	"fmt"
 
 	bbbAPI "github.com/blindsidenetworks/mattermost-plugin-bigbluebutton/server/bigbluebuttonapiwrapper/api"
 	"github.com/blindsidenetworks/mattermost-plugin-bigbluebutton/server/bigbluebuttonapiwrapper/dataStructs"
@@ -583,8 +584,18 @@ func (p *Plugin) Loopthroughrecordings() {
 					post.Props["recording_status"] = "COMPLETE"
 					post.Props["is_published"] = "true"
 					post.Props["record_id"] = recordingsresponse.Recordings.Recording[0].RecordID
-					post.Props["recording_url"] = recordingsresponse.Recordings.Recording[0].Playback.Format[0].Url
-					post.Props["images"] = strings.Join(recordingsresponse.Recordings.Recording[0].Playback.Format[0].Images, ",")
+
+                                        // Get all urls and types
+                                        var urls []string
+                                        var images []string
+                                        for _, element := range recordingsresponse.Recordings.Recording[0].Playback.Format {
+					        urls = append(urls, fmt.Sprintf("%s<%s>", element.Type, element.Url))
+						if len(element.Images)>0 {
+                                                         images = append(images, strings.Join(element.Images, ","))
+                                                }
+					}
+					post.Props["recording_url"] = strings.Join(urls, "\t")
+					post.Props["images"] = strings.Join(images, ",")
 
 					if _, err := p.API.UpdatePost(post); err == nil {
 						p.MeetingsWaitingforRecordings = append(p.MeetingsWaitingforRecordings[:i], p.MeetingsWaitingforRecordings[i+1:]...)
