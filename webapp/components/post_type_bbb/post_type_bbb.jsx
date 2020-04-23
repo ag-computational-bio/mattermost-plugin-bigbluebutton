@@ -379,6 +379,20 @@ export default class PostTypebbb extends React.PureComponent {
 	  }
 
         }
+
+        var hrefsArray = props.recording_url.split(">");
+        var formatentries = [];
+        for (var i = 0; i < hrefsArray.length; i++) {
+          if (hrefsArray[i].length>0) {
+             var hrefitems = hrefsArray[i].split("<");
+	     if (hrefitems.length>1) {
+                formatentries.push( { "text": 'Click for '+hrefitems[0], "url" : hrefitems[1] });
+	     } else {
+                formatentries.push( { "text": 'Click for Recording', "url" : hrefitems[0] });
+	     }
+          }
+        }
+
         recordingstuff = (<div>
           <div style={style.summaryRecording}>Recording
           </div>
@@ -386,13 +400,13 @@ export default class PostTypebbb extends React.PureComponent {
             <div>
               {
                 props.is_published === "true"
-                  ? <a href={props.recording_url} target="_blank">
-                      {'Click to view recording'}
-                    </a>
-                  : <span style={style.summaryItemGreyItalics}>
+		?   <span>{formatentries.map(item => { return <a href={item.url} target="_blank">{item.text}</a>}).reduce((prev, curr) => [ prev, <span style={style.bluebar}>{'   |   '}</span>, curr])}</span>
+		:
+                    <span style={style.summaryItemGreyItalics}>
                       Recording currently not viewable
                     </span>
-              }
+	     }
+
 
             </div>
             <div style={style.extraPadding}>
